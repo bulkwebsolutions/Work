@@ -1,0 +1,449 @@
+//
+//  LoginTrax.swift
+//  MyHotel
+//
+//  Created by John Blaine on 12/3/15.
+//  Copyright © 2015 Trax USA Corporation. All rights reserved.
+//
+
+import UIKit
+
+protocol LoginTraxDelegate {
+    func LoginTraxCB( status: String, usr : String, pwd : String );
+    func ForgetPasswordCB( status: String );
+    func RegisterCB( status: String );
+    func PinCreateCB( status: String, usr : String, pwd : String  );
+    func animateViewMoving (moveValuePortrait:CGFloat, moveValueLandscape:CGFloat)
+}
+
+class LoginTrax: UIView, UITextFieldDelegate {
+        var delegate: LoginTraxDelegate?
+    
+        var usernameBtn : UIButton!
+        var passwordBtn : UIButton!
+
+        var message : UILabel!
+        var username : UITextField!
+        var password : UITextField!
+        var forgotPwd : UIButton!
+        var login : UIButton!
+        
+        var newUser : UIButton!
+        var register : UIButton!
+        var registerHere : UIButton!
+        var showPin : UIButton!
+        var switchPinLabel : UILabel!
+        var switchPin : UISwitch!
+        var touchID : UIButton!
+
+        init(frm: CGRect, name : String) {
+
+            super.init(frame: frm)
+            
+            self.accessibilityIdentifier = name
+
+            let colorIndex :CGFloat = 220
+            
+            //message = UILabel(frame: CGRectZero, text : "LOGIN", adjustFont: global.trax.adjustFontSize )
+            //message = UILabel(frame: CGRectZero, text : "Sign In" )
+            message = UILabel(frame: CGRectZero )
+            message.text = "Sign In"
+            //message.textColor = UIColor.redColor()
+            message.textColor = UIColor.whiteColor()
+            message.textAlignment = NSTextAlignment.Center
+            
+            usernameBtn = UIButton(frame: CGRectZero)
+            //let surveyImg = self.multiplyImageByConstantColor(UIImage(named: "guest")!, color: UIColor.whiteColor() )
+            //let surveyImg = self.multiplyImageByConstantColor(UIImage(named: "lock")!, color: UIColor.whiteColor() )
+            usernameBtn.tintColor = UIColor.redColor()
+            usernameBtn.setImage( UIImage(named: "person")!, forState: .Normal)
+            
+            passwordBtn = UIButton(frame: CGRectZero)
+            //let surveyImg = self.multiplyImageByConstantColor(UIImage(named: "guest")!, color: UIColor.whiteColor() )
+            //let surveyImg = self.multiplyImageByConstantColor(UIImage(named: "lock")!, color: UIColor.whiteColor() )
+            passwordBtn.tintColor = UIColor.redColor()
+            passwordBtn.setImage( UIImage(named: "lock")!, forState: .Normal)
+
+            //username = UITextField(frame: CGRectZero, placeHolder: "Username" )
+            username = UITextField(frame: CGRectZero )
+            username.placeholder = "Username"
+//            username.backgroundColor = UIColor(red: colorIndex/255.0, green: colorIndex/255.0, blue: colorIndex/255.0, alpha: 1.0)
+            username.backgroundColor = UIColor(red: 0.263, green: 0.235, blue: 0.251, alpha: 1.0)
+            //username.layer.borderColor = UIColor(red: 0.396, green: 0.408, blue: 0.42, alpha: 1.0).CGColor
+            username.layer.borderWidth = 1
+            username.layer.borderColor = UIColor.whiteColor().CGColor
+            username.textColor = UIColor.whiteColor()
+            
+            //username.layer.borderColor = UIColor(red: colorIndex/255.0, green: colorIndex/255.0, blue: colorIndex/255.0, alpha: 1.0).CGColor
+            username.autocorrectionType = UITextAutocorrectionType.No
+            username.delegate = self
+            
+            if let placeholder = username.placeholder {
+                username.attributedPlaceholder = NSAttributedString(string:placeholder, attributes: [NSForegroundColorAttributeName: UIColor.whiteColor()])
+            }
+            
+            //password = UITextField(frame: CGRectZero, placeHolder: "Password" )
+            password = UITextField(frame: CGRectZero )
+            password.placeholder = "Password"
+            //password.backgroundColor = UIColor(red: colorIndex/255.0, green: colorIndex/255.0, blue: colorIndex/255.0, alpha: 1.0)
+            password.backgroundColor = UIColor(red: 0.263, green: 0.235, blue: 0.251, alpha: 1.0)
+            password.layer.borderColor = UIColor(red: colorIndex/255.0, green: colorIndex/255.0, blue: colorIndex/255.0, alpha: 1.0).CGColor
+            password.textColor = UIColor.whiteColor()
+            password.secureTextEntry = true
+            password.autocorrectionType = UITextAutocorrectionType.No
+            password.delegate = self
+            
+            password.layer.borderWidth = 1
+            password.layer.borderColor = UIColor.whiteColor().CGColor
+
+            if let placeholder = password.placeholder {
+                password.attributedPlaceholder = NSAttributedString(string:placeholder, attributes: [NSForegroundColorAttributeName: UIColor.whiteColor()])
+            }
+
+            forgotPwd = UIButton(frame: CGRectZero )
+            //forgotPwd.setTitle("Forget Password |", forState: UIControlState.Normal)
+            forgotPwd.setTitle("Forget Username or Password?", forState: UIControlState.Normal)
+            forgotPwd.addTarget(self, action: #selector(LoginTrax.forgetPassword(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+            //forgotPwd.titleLabel?.font = UIFont(name: (forgotPwd.titleLabel!.font?.fontName)!, size: (forgotPwd.titleLabel!.font?.pointSize)! - 4.0)
+//            forgotPwd.titleLabel?.font = UIFont(name: (forgotPwd.titleLabel!.font?.fontName)!, size: (forgotPwd.titleLabel!.font?.pointSize)! + global.trax.adjustFontSize - 4.0)
+//            forgotPwd.setTitleColor(UIColor.redColor(), forState: UIControlState.Normal)
+            forgotPwd.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+            forgotPwd.backgroundColor = UIColor.clearColor()
+            forgotPwd.sizeToFit()
+            
+            login = UIButton(frame: CGRectZero )
+            login.setTitle("Login", forState: UIControlState.Normal)
+            login.addTarget(self, action: #selector(LoginTrax.loginAction(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+//            login.titleLabel?.font = UIFont(name: (login.titleLabel!.font?.fontName)!, size: (login.titleLabel!.font?.pointSize)! + global.trax.adjustFontSize)
+            //login.backgroundColor = UIColor.redColor()
+            //login.backgroundColor = UIColor.greenColor()
+            login.backgroundColor = UIColor(red: 0.306, green: 0.467, blue: 0.133, alpha: 1.0)
+
+            newUser = UIButton(frame: CGRectZero )
+            newUser.setTitle("New User", forState: UIControlState.Normal)
+            newUser.backgroundColor = UIColor.redColor()
+//            newUser.titleLabel?.font = UIFont(name: (forgotPwd.titleLabel!.font?.fontName)!, size: (forgotPwd.titleLabel!.font?.pointSize)! + global.trax.adjustFontSize)
+            newUser.titleLabel?.adjustsFontSizeToFitWidth = true
+            
+            register = UIButton(frame: CGRectZero )
+            register.setTitle("Register", forState: UIControlState.Normal)
+            register.addTarget(self, action: #selector(LoginTrax.registerAction(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+//            register.titleLabel?.font = UIFont(name: (register.titleLabel!.font?.fontName)!, size: (register.titleLabel!.font?.pointSize)! + global.trax.adjustFontSize)
+            register.backgroundColor = UIColor.redColor()
+            register.sizeToFit()
+            
+            registerHere = UIButton(frame: CGRectZero )
+            registerHere.setTitle("Here", forState: UIControlState.Normal)
+            registerHere.backgroundColor = UIColor.redColor()
+//            registerHere.titleLabel?.font = UIFont(name: (registerHere.titleLabel!.font?.fontName)!, size: (registerHere.titleLabel!.font?.pointSize)! + global.trax.adjustFontSize)
+            registerHere.sizeToFit()
+            let longGR = UILongPressGestureRecognizer(target: self, action: #selector(LoginTrax.registerActionStep(_:)))
+            longGR.minimumPressDuration = 2.0
+            longGR.allowableMovement = 50.0
+            registerHere.addGestureRecognizer(longGR)
+           
+            showPin = UIButton(frame: CGRectZero )
+            
+            let longPin = UILongPressGestureRecognizer(target: self, action: #selector(LoginTrax.createPin(_:)))
+            longPin.minimumPressDuration = 2.0
+            longPin.allowableMovement = 50.0
+            showPin.addGestureRecognizer(longPin)
+       
+            //switchPinLabel = UILabel(frame: CGRectZero, text : "pin", adjustFont: -4.0 )
+            switchPinLabel = UILabel(frame: CGRectZero )
+            switchPinLabel.text = "pin"
+            switchPinLabel.textColor = UIColor.whiteColor()
+            switchPinLabel.textAlignment = NSTextAlignment.Center
+
+
+            switchPin = UISwitch(frame:CGRectZero)
+            switchPin.setOn(false, animated: false)
+            switchPin.on = false
+            switchPin.addTarget(self, action: #selector(LoginTrax.pinDidChange(_:)), forControlEvents: .ValueChanged)
+            
+            touchID = UIButton(frame: CGRectZero )
+            touchID.setTitle("touch", forState: UIControlState.Normal)
+            touchID.backgroundColor = UIColor.clearColor()
+            touchID.titleLabel?.font = UIFont(name: (touchID.titleLabel!.font?.fontName)!, size: (touchID.titleLabel!.font?.pointSize)! - 3.0)
+            touchID.titleLabel?.adjustsFontSizeToFitWidth = true
+            touchID.setImage( UIImage(named: "touchid"), forState: UIControlState.Normal )
+
+            self.addSubview(message)
+            self.addSubview(usernameBtn)
+            self.addSubview(username)
+            self.addSubview(password)
+            self.addSubview(passwordBtn)
+            self.addSubview(forgotPwd)
+            self.addSubview(login)
+            
+            self.addSubview(newUser)
+            self.addSubview(register)
+            self.addSubview(registerHere)
+            self.addSubview(showPin)
+            
+            self.addSubview(switchPinLabel)
+            self.addSubview(switchPin)
+
+            self.clipsToBounds = true
+//            self.layer.borderWidth = global.trax.borderWidth()
+            //self.layer.cornerRadius = self.frame.height * 0.08
+            self.layer.cornerRadius = 10
+            self.layer.borderColor = UIColor.grayColor().CGColor
+            
+//            self.layer.backgroundColor = UIColor(red: colorIndex/255.0, green: colorIndex/255.0, blue: colorIndex/255.0, alpha: 1.0).CGColor
+//            login.backgroundColor = UIColor(red: 0.306, green: 0.467, blue: 0.133, alpha: 1.0)
+            self.layer.backgroundColor = UIColor(red: 0.216, green: 0.255, blue: 0.275, alpha: 1.0).CGColor
+
+        }
+    
+        required init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    
+        func pinDidChange(sender:UISwitch!){
+
+            if (sender.on == true){
+                sender.on = false
+                //"on".printIt(__FILE__, line: __LINE__)
+                delegate?.PinCreateCB("Create Pin",  usr : username.text!, pwd : password.text! )
+            }
+            else{
+                //sender.on = true
+                //"off".printIt(__FILE__, line: __LINE__)
+            }
+
+       }
+    
+        override func drawRect( rect : CGRect ){
+            let  w : CGFloat = self.bounds.size.width
+            let  h : CGFloat = self.bounds.size.height
+            
+            let ctx : CGContextRef = UIGraphicsGetCurrentContext()!
+            
+            let colorIndex : CGFloat = 240
+            
+            //let colorBack = UIColor(red: colorIndex/255.0, green: colorIndex/255.0, blue: colorIndex/255.0, alpha: 1.0).CGColor
+            let colorBack = UIColor(red: 0.4, green: 0.365, blue: 0.345, alpha: 1.0).CGColor
+            
+            CGContextSetFillColorWithColor(ctx, colorBack );
+            CGContextFillRect(ctx, CGRect(x: 0, y: 0, width: w, height: h * 1.0) )
+//
+//            CGContextSetFillColorWithColor(ctx, UIColor.redColor().CGColor );
+//            CGContextFillRect(ctx, CGRect(0, h * 0.75, w, h * 0.25) )
+        }
+        
+        override func layoutSubviews(){
+            super.layoutSubviews()
+            
+            let  w : CGFloat = self.bounds.size.width
+            let  h : CGFloat = self.bounds.size.height
+            
+            message.frame = CGRect( x: w * 0.1, y: h * 0.01, width: w * 0.8, height: h * 0.12)
+           
+            usernameBtn.frame = CGRect( x: w * 0.12, y: h * 0.16, width: w * 0.06, height: h * 0.1)
+            passwordBtn.frame = CGRect( x: w * 0.12, y: h * 0.36, width: w * 0.06, height: h * 0.1)
+            
+            username.frame = CGRect( x: w * 0.1, y: h * 0.15, width: w * 0.8, height: h * 0.15)
+            username.layer.sublayerTransform = CATransform3DMakeTranslation( w * 0.1, 0, 0);
+            username.layer.borderWidth = 1
+            username.layer.cornerRadius = h * 0.02
+//            username.layer.borderColor = UIColor.clearColor().CGColor
+            username.layer.borderColor = UIColor.whiteColor().CGColor
+
+            password.frame = CGRect( x: w * 0.1, y: h * 0.35, width: w * 0.8, height: h * 0.15)
+            password.layer.sublayerTransform = CATransform3DMakeTranslation( w * 0.1, 0, 0);
+            password.layer.borderWidth = 1
+            password.layer.cornerRadius = h * 0.02
+//            password.layer.borderColor = UIColor.clearColor().CGColor
+            password.layer.borderColor = UIColor.whiteColor().CGColor
+            
+            forgotPwd.frame = CGRect( x: w * 0.1, y: h * 0.55, width: w * 0.8, height: h * 0.15)
+            forgotPwd.layer.cornerRadius = h * 0.04
+            
+            login.frame = CGRect( x: w * 0.1, y: h * 0.75, width:w * 0.8, height: h * 0.15)
+            login.layer.cornerRadius = h * 0.04
+            
+            newUser.frame = CGRect( x: w * 0.45, y: h * 0.75, width: w * 0.15, height: h * 0.25)
+            register.frame = CGRect( x: w * 0.6, y: h * 0.75, width: w * 0.2, height: h * 0.25)
+            registerHere.frame = CGRect( x: w * 0.8, y: h * 0.75, width: w * 0.1, height: h * 0.25)
+            
+            showPin.frame = CGRect( x: w * 0.01, y: h * 0.75, width: w * 0.1, height: h * 0.25)
+            switchPinLabel.frame = CGRect( x: w * 0.01, y: h * 0.76, width: switchPin.frame.width, height: h * 0.08)
+            
+            switchPin.frame = CGRect( x: w * 0.01, y: h * 0.83, width: w * 0.2, height: h * 0.2)
+            
+            touchID.frame = CGRect( x: w * 0.88, y: h * 0.55, width: w * 0.1, height: h * 0.2 )
+
+            /***************************************************************************/
+            register.hidden = true
+            registerHere.hidden = true
+            
+            showPin.hidden = true
+            switchPinLabel.hidden = true
+            switchPin.hidden = true
+            newUser.hidden = true
+
+            /***************************************************************************/
+            self.bringSubviewToFront(usernameBtn)
+            self.bringSubviewToFront(passwordBtn)
+            
+        }
+    
+        
+        func loginAction(sender: UIButton!) {
+            
+            var usr = username.text!
+            let pwd = password.text!
+            
+            if ( usr == "" ){
+//                let alert = UIAlertView(title: "",
+//                message: "Empty username! \nPlease try again.",
+//                delegate: nil,
+//                cancelButtonTitle: "OK")
+//                
+//                alert.show()
+                
+                let title = ""
+                let message = "Empty username! \nPlease try again."
+                let alertView = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+                alertView.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
+                UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alertView, animated: true, completion: nil)
+
+            } else if ( pwd == "" ){
+                
+//                let alert = UIAlertView(title: "",
+//                    message: "Empty password! \nPlease try again.",
+//                    delegate: nil,
+//                    cancelButtonTitle: "OK")
+//                
+//                alert.show()
+                
+                let title = ""
+                let message = "Empty password! \nPlease try again."
+                let alertView = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+                alertView.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
+                UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alertView, animated: true, completion: nil)
+              
+            } else {
+                
+                username.resignFirstResponder()
+                password.resignFirstResponder()
+                usr = usr.lowercaseString
+                
+//                QuickTurnSingleton.sharedInstance.setData("login-usr", val: usr)
+                delegate?.LoginTraxCB("success", usr : usr, pwd : pwd )
+            }
+            
+        }
+        
+        func setInfo( usr: String, pwd: String ) {
+            username.text = usr
+            password.text = ""           
+        }
+    
+        
+        func forgetPassword(sender: UIButton!) {
+            delegate?.ForgetPasswordCB("Forget")
+        }
+        
+        func registerAction(sender: UIButton!) {
+            delegate?.RegisterCB("RegisterCB")
+        }
+    
+        func registerActionStep(sender: UIButton!) {
+            delegate?.RegisterCB("Register Step")
+        }
+    
+        func createPin(sender: UIButton!) {
+            //"createPin".printIt(__FILE__, line: __LINE__)
+            delegate?.PinCreateCB("Create Pin",  usr : username.text!, pwd : password.text!)
+        }
+    
+    
+        func setAttribText( sysFontName : String, sysFontSize : CGFloat, leftText : String, middleText : String, rightText : String ) -> NSMutableAttributedString {
+            let myString = String( format:"%@%@%@", leftText, middleText, rightText)
+            var myMutableString = NSMutableAttributedString()
+            
+            myMutableString = NSMutableAttributedString(string: myString, attributes: [NSFontAttributeName:UIFont( name: sysFontName, size: sysFontSize - 6)!])
+            myMutableString.addAttribute(NSFontAttributeName,
+                value: UIFont( name: sysFontName, size: sysFontSize + 4)!,
+                range: NSRange( location: leftText.lengthOfBytesUsingEncoding(NSUTF8StringEncoding), length: middleText.lengthOfBytesUsingEncoding(NSUTF8StringEncoding))
+            )
+            
+            myMutableString.addAttribute(NSForegroundColorAttributeName,
+                value: UIColor.whiteColor(),
+                range: NSRange( location:0, length:myString.lengthOfBytesUsingEncoding(NSUTF8StringEncoding)))
+            
+            return( myMutableString )
+        }
+    
+    func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
+        textField.autocorrectionType = UITextAutocorrectionType.No
+        
+            if (textField.respondsToSelector(Selector("inputAssistantItem"))) {
+                textField.inputAssistantItem.leadingBarButtonGroups = []
+                textField.inputAssistantItem.trailingBarButtonGroups = []
+            }
+        return true
+    }
+    
+    func textFieldDidBeginEditing(textField: UITextField) {
+        let orientation = UIApplication.sharedApplication().statusBarOrientation
+        
+        if orientation.isLandscape {
+            animateViewMoving(0, moveValueLandscape: 80)
+        }
+    }
+    
+    func textFieldDidEndEditing(textField: UITextField) {
+        let orientation = UIApplication.sharedApplication().statusBarOrientation
+        
+        if orientation.isLandscape {
+            animateViewMoving(0, moveValueLandscape: 80)
+        }
+    }
+    
+    func animateViewMoving (moveValuePortrait:CGFloat, moveValueLandscape:CGFloat){
+        self.delegate?.animateViewMoving(moveValuePortrait, moveValueLandscape:moveValueLandscape)
+    
+    }
+    
+    func multiplyImageByConstantColor(image:UIImage,color:UIColor)->UIImage{
+        let backgroundSize = image.size
+        UIGraphicsBeginImageContext(backgroundSize)
+        
+        let ctx = UIGraphicsGetCurrentContext()
+        
+        var backgroundRect=CGRect()
+        backgroundRect.size = backgroundSize
+        backgroundRect.origin.x = 0
+        backgroundRect.origin.y = 0
+        
+        var r:CGFloat = 0
+        var g:CGFloat = 0
+        var b:CGFloat = 0
+        var a:CGFloat = 0
+        color.getRed(&r, green: &g, blue: &b, alpha: &a)
+        CGContextSetRGBFillColor(ctx, r, g, b, a)
+        
+        // Unflip the image
+        CGContextTranslateCTM(ctx, 0, backgroundSize.height)
+        CGContextScaleCTM(ctx, 1.0, -1.0)
+        CGContextClipToMask(ctx, CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height), image.CGImage);
+        CGContextFillRect(ctx, backgroundRect)
+        
+        var imageRect=CGRect()
+        imageRect.size = image.size
+        imageRect.origin.x = (backgroundSize.width - image.size.width)/2
+        imageRect.origin.y = (backgroundSize.height - image.size.height)/2
+        
+        
+        CGContextSetBlendMode(ctx, .Multiply)
+        CGContextDrawImage(ctx, imageRect, image.CGImage)
+        
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return newImage
+    }
+
+}

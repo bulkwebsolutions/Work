@@ -1,0 +1,75 @@
+//
+//  ViewController.swift
+//  Pdf-Example
+//
+//  Created by Alexander Cruz on 6/21/16.
+//  Copyright © 2016 Trax. All rights reserved.
+//
+
+import UIKit
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
+    @IBOutlet var tableView: UITableView!
+    
+    var items: [String] = ["Manual 100", "Manual 101", "Manual 102"]
+    
+    @IBOutlet weak var fleetPopUp: UIView!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        
+        // Configure table cell design
+        self.tableView.rowHeight = 84.0
+        self.tableView.scrollEnabled = true
+        self.tableView.bounces = true
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyle.SingleLine
+    
+        // Hide container
+        fleetPopUp.hidden = true
+        
+        // Configure table cell design
+        fleetPopUp.layer.shadowColor = UIColor.blackColor().CGColor
+        fleetPopUp.layer.shadowOpacity = 1
+        fleetPopUp.layer.shadowOffset = CGSizeZero
+        fleetPopUp.layer.shadowRadius = 10
+    }
+    
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.items.count
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell:UITableViewCell = self.tableView.dequeueReusableCellWithIdentifier("cell")! as UITableViewCell
+        
+        cell.textLabel?.text = self.items[indexPath.row]
+        cell.textLabel?.textAlignment = NSTextAlignment.Left
+        
+        // image
+        let image : UIImage = UIImage(named: "ibooks")!
+        cell.imageView!.image = image
+    
+        
+        return cell
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        print("You selected cell #\(indexPath.row)!")
+    }
+    
+    
+    @IBAction func popUpFleetChoices(sender: AnyObject) {
+        
+        if fleetPopUp.hidden == true {
+            fleetPopUp.hidden = false
+        } else if (fleetPopUp.hidden == false) {
+            fleetPopUp.hidden = true
+        }
+        
+    }
+    
+    
+}
+

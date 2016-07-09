@@ -1,0 +1,13 @@
+//
+//  ManualCollectionVC.swift
+//  Pdf-Example
+//
+//  Created by Alexander Cruz on 7/7/16.
+//  Copyright © 2016 Trax. All rights reserved.
+//
+
+import Cocoa
+
+class ManualCollectionVC: UIViewController {
+
+}

@@ -1,0 +1,21 @@
+//
+//  CellStruct.swift
+//  Pdf-Example
+//
+//  Created by Alexander Cruz on 7/5/16.
+//  Copyright © 2016 Trax. All rights reserved.
+//
+
+import Foundation
+
+
+struct Cell {
+    var isExpandable: Bool
+    var isExpanded: Bool
+    var isVisible: Bool
+    var value: String
+    var primaryTitle: String
+    var secondaryTitle: String
+    var cellIdentifier: String
+    var additionalRows: NSNumber
+}

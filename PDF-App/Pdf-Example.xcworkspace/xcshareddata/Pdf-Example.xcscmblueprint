@@ -1,0 +1,25 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "09110cc6-8781-1f4c-9e9a-b52d985d77b3++3821",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "09110cc6-8781-1f4c-9e9a-b52d985d77b3++3821" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "09110cc6-8781-1f4c-9e9a-b52d985d77b3++3821" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "6379B80D-A4DF-4CE7-83E4-5AE903EEEEB2",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "09110cc6-8781-1f4c-9e9a-b52d985d77b3++3821" : "PDF-App\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "Pdf-Example",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "Pdf-Example.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "http:\/\/alexander.cruz@svn.trax.aero\/svn\/packages",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "09110cc6-8781-1f4c-9e9a-b52d985d77b3++3821"
+    }
+  ]
+}

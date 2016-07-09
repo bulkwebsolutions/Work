@@ -1,0 +1,6 @@
+framework module Pods_Pdf_Example {
+  umbrella header "Pods-Pdf-Example-umbrella.h"
+
+  export *
+  module * { export * }
+}

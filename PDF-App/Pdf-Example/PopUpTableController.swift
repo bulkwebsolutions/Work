@@ -1,0 +1,77 @@
+//
+//  PopUpTableController.swift
+//  Pdf-Example
+//
+//  Created by Alexander Cruz on 6/28/16.
+//  Copyright © 2016 Trax. All rights reserved.
+//
+
+import UIKit
+
+
+
+class PopUpTableController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+
+    @IBOutlet var tableView: UITableView!
+    
+    var fleetItems: [String] = ["Fleet 100", "Fleet 101", "Fleet 102", "Fleet 103", "Fleet 104", "Fleet 105"]
+    var allSelectedManuals = []
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        print("POP \(allSelectedManuals)")
+        
+        self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        
+        // Configure table cell design
+        self.tableView.rowHeight = 90.0
+        self.tableView.scrollEnabled = true
+        self.tableView.bounces = true
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyle.SingleLine
+        
+        // Round corners
+        self.tableView.layer.cornerRadius = 10
+        self.tableView.layer.masksToBounds = true;
+        
+    
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        tableView.tableFooterView = UIView()
+    }
+    
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.fleetItems.count
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell:UITableViewCell = self.tableView.dequeueReusableCellWithIdentifier("cell")! as UITableViewCell
+        
+        cell.textLabel?.text = self.fleetItems[indexPath.row]
+        cell.textLabel?.textAlignment = NSTextAlignment.Left
+        
+        // image
+        let image : UIImage = UIImage(named: "fleet")!
+        cell.imageView!.image = image
+        
+        
+        return cell
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        notify()
+        self.tableView.userInteractionEnabled = true
+        print("You selected cell #\(indexPath.row)!")
+    }
+
+    
+    // 2. Post notification using "special notification key"
+    @IBAction func notify() {
+        NSNotificationCenter.defaultCenter().postNotificationName(mySpecialNotificationKey, object: self)
+    }
+    
+    
+    
+}

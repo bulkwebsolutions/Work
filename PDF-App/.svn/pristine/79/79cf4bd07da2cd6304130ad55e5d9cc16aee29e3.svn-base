@@ -1,0 +1,401 @@
+//
+//  PinLoginGenerate.swift
+//  Task Control
+//
+//  Created by John Blaine on 3/11/16.
+//  Copyright © 2016 Trax USA Corporation. All rights reserved.
+//
+
+import UIKit
+
+protocol pinGenerateDelegate {
+    func pinGenerate(controller: PinLoginGenerate, pinCreate pin : String, usr : String, pwd : String  )
+    func pinGenerateCancel(controller: PinLoginGenerate )
+}
+
+class PinLoginGenerate: UIView, PinKBDelegate {
+    typealias sentType = ( user: String, password: String,  pin: String ) -> Void
+    typealias cancelType = (status: String) -> Void
+    private var sentCB: sentType?
+    private var cancelCB: cancelType?
+
+    var title : UILabel!
+    var message : UILabel!
+    var inputEntry : UITextField!
+    
+    var cancel : UIButton!
+    var previous : UIButton!
+    var next : UIButton!
+    var keyPad : PinLoginKB!
+    var pinView : PinLoginDots!
+    
+    enum action { case createPin; case changePin }
+    var currentAction : action!
+
+    enum PinState { case user; case password; case pin; case pinConfirm }
+    var currentState : PinState!
+    
+
+    var currentLoginUser: String! = ""
+    var currentUser: String! = ""
+    var currentPassword: String! = ""
+    var currentPin: String! = ""
+    var currentPinConfirm: String! = ""
+    var tm : NSTimer!
+    
+    var delegate: pinGenerateDelegate?
+
+    init(frm: CGRect, name : String) {
+        
+        super.init(frame: frm)
+        self.accessibilityIdentifier = name
+        
+        let colorIndex :CGFloat = 220
+        currentState = PinState.user
+        currentAction = action.createPin
+        
+        title = UILabel(frame: CGRectZero)
+//        title = UILabel(frame: CGRectZero, text : "Create Pin", adjustFont: 4.0 )
+        title.text = "Create Pin"
+//        title.textColor = UIColor.redColor()
+        title.textColor = UIColor.whiteColor()
+        title.textAlignment = NSTextAlignment.Center
+        
+//        message = UILabel(frame: CGRectZero, text : "Please enter your username", adjustFont: -4.0 )
+        message = UILabel(frame: CGRectZero )
+        message.text = "Please enter your username"
+//        message.textColor = UIColor.redColor()
+        message.textColor = UIColor.whiteColor()
+        message.textAlignment = NSTextAlignment.Center
+        
+//        inputEntry = UITextField(frame: CGRectZero, placeHolder: "Full Name" )
+        inputEntry = UITextField(frame: CGRectZero )
+        inputEntry.placeholder = "Full Name"
+        inputEntry.backgroundColor = UIColor(red: colorIndex/255.0, green: colorIndex/255.0, blue: colorIndex/255.0, alpha: 1.0)
+        inputEntry.layer.borderColor = UIColor(red: colorIndex/255.0, green: colorIndex/255.0, blue: colorIndex/255.0, alpha: 1.0).CGColor
+        inputEntry.autocorrectionType = UITextAutocorrectionType.No
+
+        previous = UIButton(frame: CGRectZero )
+        //previous.setTitle("<<Previous", forState: UIControlState.Normal)
+        //let imgPrev = UIImage(named: "backward")!
+        previous.accessibilityIdentifier = "<<Previous"
+        previous.setImage( UIImage(named: "backward")!, forState: UIControlState.Normal)
+        previous.addTarget(self, action: #selector(PinLoginGenerate.btnAction(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+//        previous.backgroundColor = UIColor.redColor()
+        previous.backgroundColor = UIColor(red: 0.180, green: 0.635, blue: 0.863, alpha: 1.0)
+
+        next = UIButton(frame: CGRectZero )
+        //next.setTitle("Next>>", forState: UIControlState.Normal)
+        next.accessibilityIdentifier = "Next>>"
+        next.setImage(UIImage(named: "forward")!, forState: UIControlState.Normal)
+        next.addTarget(self, action: #selector(PinLoginGenerate.btnAction(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+//        next.backgroundColor = UIColor.redColor()
+        next.imageView!.tintColor = UIColor.whiteColor()
+        next.backgroundColor = UIColor(red: 0.180, green: 0.635, blue: 0.863, alpha: 1.0)
+
+        cancel = UIButton(frame: CGRectZero )
+        cancel.accessibilityIdentifier = "cancel"
+        cancel.setTitle("☒", forState: UIControlState.Normal)
+        cancel.addTarget(self, action: #selector(PinLoginGenerate.btnAction(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        cancel.backgroundColor = UIColor.redColor()
+        cancel.backgroundColor = UIColor(red: 0.180, green: 0.635, blue: 0.863, alpha: 1.0)
+
+        
+        keyPad = PinLoginKB(frm: CGRectZero )
+        keyPad.delegate = self
+        
+        keyPad.btnPound.hidden = true
+        
+        pinView = PinLoginDots(frm: CGRectZero )
+
+        self.addSubview(title)
+        self.addSubview(message)
+        self.addSubview(inputEntry)
+        self.addSubview(previous)
+        self.addSubview(next)
+        self.addSubview(cancel)
+        self.addSubview(keyPad)
+        self.addSubview(pinView)
+
+        keyPad.hidden = true
+        pinView.hidden = true
+        
+        previous.hidden = true
+        next.hidden = false
+
+        self.clipsToBounds = true
+        self.layer.borderWidth = 1
+        self.layer.cornerRadius = self.frame.height * 0.08
+//        self.layer.borderColor = UIColor.clearColor().CGColor
+//        self.layer.backgroundColor = UIColor.blueColor().CGColor
+        self.layer.borderColor = UIColor(red: 0.180, green: 0.635, blue: 0.863, alpha: 1.0).CGColor
+        self.layer.backgroundColor = UIColor(red: 0.180, green: 0.635, blue: 0.863, alpha: 1.0).CGColor
+
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+
+    override func layoutSubviews(){
+        super.layoutSubviews()
+        
+        let  w : CGFloat = self.bounds.size.width
+        let  h : CGFloat = self.bounds.size.height
+        
+        title.frame = CGRect( x: w * 0.1, y: h * 0.01, width: w * 0.8, height: h * 0.06)
+        message.frame = CGRect( x: w * 0.1, y: h * 0.07, width: w * 0.8, height: h * 0.06)
+        
+        inputEntry.frame = CGRect( x: w * 0.1, y: h * 0.13, width: w * 0.8, height: h * 0.08)
+        inputEntry.layer.sublayerTransform = CATransform3DMakeTranslation( w * 0.1, 0, 0);
+        inputEntry.layer.borderWidth = 1
+        inputEntry.layer.cornerRadius = h * 0.04
+        inputEntry.layer.borderColor = UIColor.clearColor().CGColor
+        
+        cancel.frame = CGRect( x: w * 0.93, y: h * 0.01, width: w * 0.05, height: h * 0.05)
+        
+        keyPad.frame = CGRect( x: w * 0.2, y: h * 0.3, width: w * 0.6, height: h * 0.6)
+        pinView.frame = CGRect( x: w * 0.1, y: h * 0.12, width: w * 0.8, height: h * 0.06)
+
+        
+        previous.frame = CGRect( x: w * 0.05, y: h * 0.8, width: w * 0.05, height: h * 0.15)
+        previous.layer.cornerRadius = h * 0.04
+        
+        next.frame = CGRect( x: w * 0.9, y: h * 0.8, width: w * 0.05, height: h * 0.15)
+        next.layer.cornerRadius = h * 0.04
+
+    }
+    /***/
+    
+    override func drawRect( rect : CGRect ){
+        let  w : CGFloat = self.bounds.size.width
+        let  h : CGFloat = self.bounds.size.height
+        
+        let ctx : CGContextRef = UIGraphicsGetCurrentContext()!
+        
+        let colorIndex : CGFloat = 240
+        let colorBack = UIColor(red: colorIndex/255.0, green: colorIndex/255.0, blue: colorIndex/255.0, alpha: 1.0).CGColor
+        
+        CGContextSetFillColorWithColor(ctx, colorBack );
+        CGContextFillRect(ctx, CGRect(x: 0, y: 0, width: w, height: h * 0.25) )
+        
+        CGContextSetFillColorWithColor(ctx, UIColor.redColor().CGColor );
+        CGContextFillRect(ctx, CGRect(x: 0, y: h * 0.25, width: w, height: h * 0.75) )
+    }
+    
+    func btnAction(sender: UIButton!) {
+        //print(sender.accessibilityIdentifier)
+        
+        if ( sender.accessibilityIdentifier == "Next>>" ){
+            self.moveNext()
+
+        } else if ( sender.accessibilityIdentifier == "<<Previous" ){
+            self.movePrev()
+
+            
+        } else if ( sender.accessibilityIdentifier == "cancel" ){ // Done is press
+            self.hidden = true
+            self.delegate?.pinGenerateCancel(self)
+        } else if ( sender.accessibilityIdentifier == "Done" ){ // Done is press
+
+        }
+    }
+    
+    func moveNext() {
+        if ( currentState == PinState.user ){
+            
+            if ( self.checkForEmptyString( inputEntry.text! ) == false ){
+
+                currentLoginUser = inputEntry.text
+                currentUser = inputEntry.text
+                currentState = PinState.password
+                inputEntry.resignFirstResponder()
+                
+                /***** Enter Password ****/
+                message.text = "Please enter your password"
+                inputEntry.placeholder = "password"
+                inputEntry.text = currentPassword
+            }
+            
+        } else if ( currentState == PinState.password ){
+            if ( self.checkForEmptyString( inputEntry.text! ) == false ){
+                currentPassword = inputEntry.text
+                currentState = PinState.pin
+                inputEntry.resignFirstResponder()
+                
+                /***** Enter Pin ****/
+                message.text = "Please enter your pin"
+                inputEntry.hidden = true
+                keyPad.hidden = false
+                pinView.hidden = false
+
+            }
+            
+        } else if ( currentState == PinState.pin ){
+            
+            currentPin = keyPad.currentPin
+            currentState = PinState.pinConfirm
+
+            keyPad.currentPin = ""
+            pinView.showPins(0, animate : false)
+
+            /***** Enter Pin Confirmation ****/
+            message.text = "Please confirm your pin"
+            
+        } else if ( currentState == PinState.pinConfirm ){
+            
+            currentPinConfirm = keyPad.currentPin
+
+            if ( currentPin != currentPinConfirm ){
+                    currentPin = ""
+                    currentPinConfirm = ""
+                    pinView.showPins(  0, animate : false )
+                    keyPad.currentPin = ""
+
+                    self.previous.sendActionsForControlEvents(UIControlEvents.TouchUpInside)
+//                    let alert = UIAlertView(title: "Task List",
+//                        message: "The 'password' and 'confirmation password' do not match! \nPlease try again.",
+//                        delegate: nil,
+//                        cancelButtonTitle: "OK")
+//                    alert.show()
+                
+                
+                let title = "Task List"
+                let message = "The 'password' and 'confirmation password' do not match! \nPlease try again."
+                let alertView = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+                alertView.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
+                UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alertView, animated: true, completion: nil)
+
+                
+            } else {
+                //"OK".printIt(__FILE__, line: __LINE__ )
+                pinView.showPins(  0, animate : false )
+                delegate?.pinGenerate(self, pinCreate: currentPin, usr : self.currentUser, pwd : self.currentPassword)
+            }
+            
+        }
+
+    }
+    
+    func movePrev() {
+       
+        if ( currentState == PinState.pinConfirm ){
+            currentState = PinState.pin
+            
+            /***** Enter Pin ****/
+            message.text = "Please enter your pin"
+            inputEntry.hidden = true
+            keyPad.hidden = false
+            pinView.hidden = false
+            
+        } else if ( currentState == PinState.pin ){
+            currentState = PinState.password
+            
+            /***** Enter Password ****/
+            message.text = "Please enter your password"
+            inputEntry.placeholder = "password"
+            inputEntry.text = currentPassword
+            inputEntry.hidden = false
+            keyPad.hidden = true
+            
+        } else if ( currentState == PinState.password ){
+            currentState = PinState.user
+            /***** Enter User ****/
+            message.text = "Please enter your username"
+            inputEntry.placeholder = "username"
+            //inputEntry.hidden = false
+        }
+        
+    }
+    
+    func checkForEmptyString( s: String) -> Bool {
+        if( s == "" ){
+//            let alert = UIAlertView(title: "Pin Login",
+//                message: "Blank entry.\nPlease try again.",
+//                delegate: nil,
+//                cancelButtonTitle: "OK")
+//            alert.show()
+            
+            let title = "Pin Login"
+            let message = "Blank entry.\nPlease try again."
+            let alertView = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+            alertView.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
+            UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alertView, animated: true, completion: nil)
+
+            
+            return( true )
+        } else {
+            return( false )
+        }
+    }
+    
+    func pinKBCB( controller: PinLoginKB, pinNum pin : String, delKey : Bool  ){
+        //pin.printIt(__FILE__, line: __LINE__ )
+        
+        if ( delKey == false ){
+            pinView.showPins(pin.len(), animate : true )
+        } else {
+            pinView.showPins(pin.len(), animate : false)
+        }
+        
+        if ( pin.len() == 4){
+            //"next event".printIt(__FILE__, line: __LINE__ )
+            tm = NSTimer.scheduledTimerWithTimeInterval( 0.5, target: self, selector: #selector(PinLoginGenerate.inactivityExpires), userInfo: nil, repeats: true)
+        }
+
+    }
+
+    func inactivityExpires() {
+        if ( tm != nil ){
+            tm.invalidate()
+        }
+        self.next.sendActionsForControlEvents(UIControlEvents.TouchUpInside)
+    }
+    
+ 
+    func setupBypassUsrAndPwd( usr: String, pwd: String ) {
+        currentState = PinState.pin
+        inputEntry.resignFirstResponder()
+        
+        self.currentLoginUser = usr
+        self.currentUser = usr
+        self.currentPassword = pwd
+
+        
+        /***** Enter Pin ****/
+        pinView.showPins(0, animate : false)
+        message.text = "Please enter your pin"
+        inputEntry.hidden = true
+        keyPad.hidden = false
+        pinView.hidden = false
+        
+        currentPin = ""
+        currentPinConfirm = ""
+        keyPad.currentPin = ""
+        
+    }
+    
+    /***
+    func runIt( usr: String, pwd: String, sent : (user: String, password: String,  pin: String) -> Void, cancel : (status: String) -> Void  ) {
+        
+        "run".printIt(#file, line: #line )
+        
+        self.sentCB = sent
+        self.cancelCB = cancel
+        
+        currentState = PinState.user
+        self.currentUser = usr
+        self.currentPassword = pwd
+        
+        currentPin = ""
+        currentPinConfirm = ""
+        
+        inputEntry.text = usr
+        
+        keyPad.currentPin = ""
+
+    }
+    ***/
+    
+}

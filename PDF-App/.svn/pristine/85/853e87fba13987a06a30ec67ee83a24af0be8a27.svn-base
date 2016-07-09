@@ -1,0 +1,12 @@
+PODS:
+  - ExpandingTableView (1.0.1)
+
+DEPENDENCIES:
+  - ExpandingTableView
+
+SPEC CHECKSUMS:
+  ExpandingTableView: 0f50e5f764c18fd3a1659b6c823738764fd3775b
+
+PODFILE CHECKSUM: b8cc028b8d3ad0f7edda1b40f4d9c7d3fe76be43
+
+COCOAPODS: 1.0.1

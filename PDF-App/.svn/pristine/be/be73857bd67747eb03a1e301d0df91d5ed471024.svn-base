@@ -1,0 +1,107 @@
+//
+//  ViewController.swift
+//  Pdf-Example
+//
+//  Created by Alexander Cruz on 6/21/16.
+//  Copyright © 2016 Trax. All rights reserved.
+//
+
+import UIKit
+
+// 1. &nbsp;Globally define a "special notification key" constant that can be broadcast / tuned in to...
+let mySpecialNotificationKey = "theKey"
+
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
+    @IBOutlet var tableView: UITableView!
+    
+    var items: [String] = ["Manual 100", "Manual 101", "Manual 102"]
+    
+    @IBOutlet weak var fleetPopUp: UIView!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Adding Notification Center
+        // When user selects a row we will hide container
+        // And reload main table with fleet selected
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.updateNotificationSentLabel), name: mySpecialNotificationKey, object: nil)
+        
+       
+        self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        
+        // Configure table cell design
+        self.tableView.rowHeight = 84.0
+        self.tableView.scrollEnabled = true
+        self.tableView.bounces = true
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyle.SingleLine
+        
+    
+        // Hide container
+        fleetPopUp.hidden = true
+        
+        // Configure table cell design
+        fleetPopUp.layer.shadowColor = UIColor.blackColor().CGColor
+        fleetPopUp.layer.shadowOpacity = 1
+        fleetPopUp.layer.shadowOffset = CGSizeZero
+        fleetPopUp.layer.shadowRadius = 5
+    }
+    
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.items.count
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell:UITableViewCell = self.tableView.dequeueReusableCellWithIdentifier("cell")! as UITableViewCell
+        
+        cell.textLabel?.text = self.items[indexPath.row]
+        cell.textLabel?.textAlignment = NSTextAlignment.Left
+        
+        // image
+        let image : UIImage = UIImage(named: "ibooks")!
+        cell.imageView!.image = image
+    
+        
+        return cell
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        print("You selected cell #\(indexPath.row)!")
+        
+        // GoToSplitView
+        self.performSegueWithIdentifier("GoToSplitView", sender: self)
+    }
+    
+    
+    @IBAction func popUpFleetChoices(sender: AnyObject) {
+        
+        if fleetPopUp.hidden == true {
+            self.tableView.userInteractionEnabled = false
+            fleetPopUp.hidden = false
+        } else if (fleetPopUp.hidden == false) {
+            self.tableView.userInteractionEnabled = true
+            fleetPopUp.hidden = true
+        }
+        
+    }
+    
+    // GoToSplitView Segue
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     //   let path = self.tableView.indexPathForSelectedRow!
+        
+        
+    }
+    
+    func updateNotificationSentLabel() {
+        print("Notication heard")
+        self.tableView.userInteractionEnabled = true
+        fleetPopUp.hidden = true
+        tableView.reloadData()
+    }
+    
+    
+    
+}
+
